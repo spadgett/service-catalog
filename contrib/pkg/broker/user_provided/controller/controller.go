@@ -45,6 +45,11 @@ type userProvidedController struct {
 	instanceMap map[string]*userProvidedServiceInstance
 }
 
+type userProvidedServiceMetadata struct {
+	DisplayName      string `json:"displayName"`
+	DocumentationUrl string `json:"documentationUrl"`
+}
+
 // CreateController creates an instance of a User Provided service broker controller.
 func CreateController() controller.Controller {
 	var instanceMap = make(map[string]*userProvidedServiceInstance)
@@ -54,19 +59,30 @@ func CreateController() controller.Controller {
 }
 
 func (c *userProvidedController) Catalog() (*brokerapi.Catalog, error) {
+	metadata := userProvidedServiceMetadata{
+		DisplayName:      "User Provided Service",
+		DocumentationUrl: "https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/walkthrough.md",
+	}
 	return &brokerapi.Catalog{
 		Services: []*brokerapi.Service{
 			{
 				Name:        "user-provided-service",
 				ID:          "4f6e6cf6-ffdd-425f-a2c7-3c9258ad2468",
-				Description: "A user provided service",
+				Description: "A sample user provided service (UPS) for demonstrating the Kubernetes Service Catalog. During binding, this broker simply echos the values back that were provided when it was provisioned. The values are the service.",
 				Plans: []brokerapi.ServicePlan{{
 					Name:        "default",
 					ID:          "86064792-7ea2-467b-af93-ac9694d96d52",
-					Description: "Sample plan description",
+					Description: "The default user provided service plan.",
+					Free:        true,
+				}, {
+					Name:        "alternate",
+					ID:          "9b67a0e4-26d1-11e7-93ae-92361f002671",
+					Description: "An alternate plan for testing, which is no different from the default.",
 					Free:        true,
 				},
 				},
+				Tags:     []string{"example", "ups"},
+				Metadata: metadata,
 			},
 		},
 	}, nil
